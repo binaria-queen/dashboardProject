@@ -1,0 +1,3 @@
+201902	BA	2930709	BA	2930709	4691500	Comércio atacadista de mercadorias em geral	34051000	5102	1059.84	42.09
+201902	BA	2930709	BA	2931103	4646001	Comércio atacadista de cosméticos	42022220	5403	0.00	97.84
+201902	BA	2927408	BA	2927408	4693100	Comércio atacadista de mercadorias em geral	04029900	5949	0.00	56.31

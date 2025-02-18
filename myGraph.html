@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gráfico a partir de TXT</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        canvas {
+            max-width: 800px;
+            margin: auto;
+        }
+    </style>
+</head>
+<body>
+
+    <h2>Gráfico a partir de Arquivo TXT</h2>
+    <input type="file" id="fileInput" accept=".txt">
+    <p id="status"></p>
+    <canvas id="myChart"></canvas>
+
+    <script>
+        document.getElementById('fileInput').addEventListener('change', function(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const text = e.target.result;
+                processarTexto(text);
+            };
+
+            reader.readAsText(file);
+        });
+
+        function processarTexto(text) {
+            const lines = text.trim().split('\n');
+            const labels = [];
+            const data1 = [];
+            const data2 = [];
+
+            lines.forEach(line => {
+                // Ajuste para separar colunas corretamente
+                const cols = line.split(/\t| {2,}/); // Tabulação ou múltiplos espaços
+
+                if (cols.length > 11) {
+                    labels.push(cols[6].trim()); // Nome do comércio
+                    data1.push(parseFloat(cols[10].replace(',', '.')) || 0); // Conversão de números
+                    data2.push(parseFloat(cols[11].replace(',', '.')) || 0);
+                }
+            });
+
+            if (labels.length === 0) {
+                document.getElementById("status").innerText = "Erro ao ler o arquivo. Verifique o formato!";
+            } else {
+                document.getElementById("status").innerText = "";
+                gerarGrafico(labels, data1, data2);
+            }
+        }
+
+        function gerarGrafico(labels, data1, data2) {
+            const ctx = document.getElementById('myChart').getContext('2d');
+
+            if (window.myChart) {
+                window.myChart.destroy(); // Remove gráfico anterior
+            }
+
+            window.myChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Métrica 1',
+                            data: data1,
+                            backgroundColor: 'rgba(54, 162, 235, 0.6)'
+                        },
+                        {
+                            label: 'Métrica 2',
+                            data: data2,
+                            backgroundColor: 'rgba(255, 99, 132, 0.6)'
+                        }
+                    ]
+                },
+             
