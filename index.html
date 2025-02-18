@@ -4,16 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gráficos com Chart.js</title>
+    
+    <!-- Importa o Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <!-- Importa o CSS -->
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Importa o JavaScript -->
     <script defer src="script.js"></script>
 </head>
 <body>
 
     <h1>Gerar Gráfico a partir de TXT</h1>
+    
     <input type="file" id="fileInput">
     <p id="status"></p>
 
-    <canvas id="grafico"></canvas>
+    <!-- Container para o gráfico -->
+    <div id="grafico-container">
+        <canvas id="grafico"></canvas>
+    </div>
 
 </body>
 </html>
