@@ -1,17 +1,37 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dashboard com Chart.js</title>
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panorama de vendas de 2019</title>
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
-  <h2>Dashboard de Dados Econômicos</h2>
-  <canvas id="myChart"></canvas>
+    <header>
+        <h1>Panorama de vendas de 2019</h1>
+    </header>
 
-  <script src="js/script.js"></script>
+    <div class="container">
+        <div class="chart-container">
+            <h3>VISÃO GERAL</h3>
+            <canvas id="graficoBarra"></canvas>
+        </div>
+        <div class="chart-container">
+            <h3>CATEGORIAS MENOS VENDIDAS POR ESTADO</h3>
+            <canvas id="graficoLinha"></canvas>
+        </div>
+        <div class="chart-container">
+            <h3>CATEGORIAS MAIS FORTES POR ESTADO</h3>
+            <canvas id="graficoPizza"></canvas>
+        </div>
+    </div>
 
-</body>
+    <footer>
+        <p>SALVADOR-BA 2025</p>
+    </footer>
+
+    <script src="js/script.js"></script>
+  </body>
 </html>
