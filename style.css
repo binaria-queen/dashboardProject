@@ -1,0 +1,41 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: #f4f4f4;
+    padding: 20px;
+}
+
+/* Define a área do gráfico */
+#grafico-container {
+    width: 80%; /* O gráfico ocupa 80% da largura da tela */
+    max-width: 800px; /* Máximo de 800px de largura */
+    height: 400px; /* Altura fixa */
+    margin: 20px auto; /* Centraliza na tela */
+    background: white;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+/* Ajusta o tamanho do canvas */
+canvas {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* Botão de upload de arquivo */
+input[type="file"] {
+    display: block;
+    margin: 10px auto;
+    padding: 10px;
+    border: 2px solid #007bff;
+    border-radius: 5px;
+    background-color: white;
+    cursor: pointer;
+}
+
+/* Mensagem de status */
+#status {
+    font-weight: bold;
+    color: red;
+}

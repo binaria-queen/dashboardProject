@@ -1,161 +1,205 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Trabalho de topicos</title>
     <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        text-align: center;
+      }
 
-        #container {
-            width: 60%;
-            margin: 0 auto;
-        }
+      #container {
+        width: 60%;
+        margin: 0 auto;
+      }
     </style>
-</head>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="style.css" />
+    <script defer src="script.js"></script>
 
-<body>
+  </head>
 
-    <h2> Tópicos Avançados - Gráficos das tabelas de compra (demora mas carrega...)</h2>
+  <body>
+    <h2>
+      Tópicos Avançados - Gráficos das tabelas de compra (demora mas carrega...)
+    </h2>
+    <h1>Gerar Gráfico a partir de TXT</h1>
+    
+    <input type="file" id="fileInput">
+    <p id="status"></p>
+    <div id="grafico-container">
+        <canvas id="grafico"></canvas>
+    </div>
 
     <div id="container">
-        <div id="chartTotalBruto"></div>
+      <div id="chartTotalBruto"></div>
 
-        <div id="chartICMS"></div>
+      <div id="chartICMS"></div>
 
-        <div id="chartTotalBrutoCNAE"></div>
+      <div id="chartTotalBrutoCNAE"></div>
 
-        <div id="chartMovimentacao"></div>
-
-
+      <div id="chartMovimentacao"></div>
     </div>
 
     <script>
-        const files = [
-            "Compra_2019_01.txt",
-            "Compra_2019_02.txt",
-            "Compra_2019_03.txt",
-            "Compra_2019_04.txt",
-            "Compra_2019_05.txt",
+      const files = [
+        "Compra_2019_01.txt",
+        "Compra_2019_02.txt",
+        "Compra_2019_03.txt",
+        "Compra_2019_04.txt",
+        "Compra_2019_05.txt",
+      ];
+
+      async function loadAllData() {
+        const allData = [];
+        for (const file of files) {
+          const response = await fetch(file);
+          const text = await response.text();
+          const parsedData = parseData(text);
+          allData.push(...parsedData);
+        }
+        return allData;
+      }
+
+      function parseData(text) {
+        return text
+          .trim()
+          .split("\n")
+          .map((line) => {
+            const fields = line.split("\t");
+            return {
+              mesReferencia: fields[0],
+              estadoOrigem: fields[1],
+              municipioOrigem: fields[2],
+              estadoDestino: fields[3],
+              municipioDestino: fields[4],
+              cnae: fields[5],
+              descricaoCnae: fields[6],
+              ncm: fields[7],
+              cfop: fields[8],
+              totalBruto: parseFloat(fields[9]) || 0,
+              icms: parseFloat(fields[10]) || 0,
+            };
+          });
+      }
+
+      async function createDashboard() {
+        const rawData = await loadAllData();
+
+        // total por estado de origem
+        const estados = [...new Set(rawData.map((d) => d.estadoOrigem))];
+        const totalBrutoData = estados.map((estado) =>
+          rawData
+            .filter((d) => d.estadoOrigem === estado)
+            .reduce((sum, d) => sum + d.totalBruto, 0)
+        );
+
+        Plotly.newPlot(
+          "chartTotalBruto",
+          [
+            {
+              x: estados,
+              y: totalBrutoData,
+              type: "bar",
+              marker: { color: "blue" },
+            },
+          ],
+          {
+            title: "Total Bruto por Estado de Origem",
+            xaxis: { title: "Estado de Origem" },
+            yaxis: { title: "Total Bruto (R$)" },
+          }
+        );
+
+        // icms por estado de origem
+        const icmsData = estados.map((estado) =>
+          rawData
+            .filter((d) => d.estadoOrigem === estado)
+            .reduce((sum, d) => sum + d.icms, 0)
+        );
+
+        Plotly.newPlot(
+          "chartICMS",
+          [
+            {
+              x: estados,
+              y: icmsData,
+              type: "bar",
+              marker: { color: "green" },
+            },
+          ],
+          {
+            title: "ICMS Arrecadado por Estado de Origem",
+            xaxis: { title: "Estado de Origem" },
+            yaxis: { title: "ICMS (R$)" },
+          }
+        );
+
+        // movimentacao entre estados
+        const estadosDestino = [
+          ...new Set(rawData.map((d) => d.estadoDestino)),
         ];
 
-        async function loadAllData () {
-            const allData = [];
-            for (const file of files) {
-                const response = await fetch(file);
-                const text = await response.text();
-                const parsedData = parseData(text);
-                allData.push(...parsedData);
-            }
-            return allData;
-        }
+        const matrizMovimentacao = estados.map((origem) =>
+          estadosDestino.map((destino) =>
+            rawData
+              .filter(
+                (d) => d.estadoOrigem === origem && d.estadoDestino === destino
+              )
+              .reduce((sum, d) => sum + d.totalBruto, 0)
+          )
+        );
 
-        function parseData (text) {
-            return text.trim().split("\n").map(line => {
-                const fields = line.split("\t");
-                return {
-                    mesReferencia: fields[0],
-                    estadoOrigem: fields[1],
-                    municipioOrigem: fields[2],
-                    estadoDestino: fields[3],
-                    municipioDestino: fields[4],
-                    cnae: fields[5],
-                    descricaoCnae: fields[6],
-                    ncm: fields[7],
-                    cfop: fields[8],
-                    totalBruto: parseFloat(fields[9]) || 0,
-                    icms: parseFloat(fields[10]) || 0
-                };
-            });
-        }
+        Plotly.newPlot(
+          "chartMovimentacao",
+          [
+            {
+              z: matrizMovimentacao,
+              x: estadosDestino,
+              y: estados,
+              type: "heatmap",
+              colorscale: "Viridis",
+            },
+          ],
+          {
+            title: "Movimentação de Produtos entre Estados",
+            xaxis: { title: "Estado Destino" },
+            yaxis: { title: "Estado Origem" },
+          }
+        );
 
-        async function createDashboard () {
-            const rawData = await loadAllData();
+        // total por cnae
+        const cnaeDescricoes = [
+          ...new Set(rawData.map((d) => d.descricaoCnae)),
+        ];
+        const totalBrutoPorCNAE = cnaeDescricoes.map((desc) =>
+          rawData
+            .filter((d) => d.descricaoCnae === desc)
+            .reduce((sum, d) => sum + d.totalBruto, 0)
+        );
 
-            // total por estado de origem
-            const estados = [...new Set(rawData.map(d => d.estadoOrigem))];
-            const totalBrutoData = estados.map(estado =>
-                rawData.filter(d => d.estadoOrigem === estado)
-                    .reduce((sum, d) => sum + d.totalBruto, 0)
-            );
+        Plotly.newPlot(
+          "chartTotalBrutoCNAE",
+          [
+            {
+              x: cnaeDescricoes,
+              y: totalBrutoPorCNAE,
+              type: "bar",
+              marker: { color: "purple" },
+            },
+          ],
+          {
+            title: "Total Bruto por Descrição CNAE",
+            xaxis: { title: "Descrição CNAE", tickangle: -45 },
+            yaxis: { title: "Total Bruto (R$)" },
+          }
+        );
+      }
 
-            Plotly.newPlot("chartTotalBruto", [{
-                x: estados,
-                y: totalBrutoData,
-                type: "bar",
-                marker: { color: "blue" }
-            }], {
-                title: "Total Bruto por Estado de Origem",
-                xaxis: { title: "Estado de Origem" },
-                yaxis: { title: "Total Bruto (R$)" }
-            });
-
-            // icms por estado de origem
-            const icmsData = estados.map(estado =>
-                rawData.filter(d => d.estadoOrigem === estado)
-                    .reduce((sum, d) => sum + d.icms, 0)
-            );
-
-            Plotly.newPlot("chartICMS", [{
-                x: estados,
-                y: icmsData,
-                type: "bar",
-                marker: { color: "green" }
-            }], {
-                title: "ICMS Arrecadado por Estado de Origem",
-                xaxis: { title: "Estado de Origem" },
-                yaxis: { title: "ICMS (R$)" }
-            });
-
-            // movimentacao entre estados
-            const estadosDestino = [...new Set(rawData.map(d => d.estadoDestino))];
-
-            const matrizMovimentacao = estados.map(origem =>
-                estadosDestino.map(destino =>
-                    rawData.filter(d => d.estadoOrigem === origem && d.estadoDestino === destino)
-                        .reduce((sum, d) => sum + d.totalBruto, 0)
-                )
-            );
-
-            Plotly.newPlot("chartMovimentacao", [{
-                z: matrizMovimentacao,
-                x: estadosDestino,
-                y: estados,
-                type: "heatmap",
-                colorscale: "Viridis"
-            }], {
-                title: "Movimentação de Produtos entre Estados",
-                xaxis: { title: "Estado Destino" },
-                yaxis: { title: "Estado Origem" }
-            });
-
-            // total por cnae
-            const cnaeDescricoes = [...new Set(rawData.map(d => d.descricaoCnae))];
-            const totalBrutoPorCNAE = cnaeDescricoes.map(desc =>
-                rawData.filter(d => d.descricaoCnae === desc)
-                    .reduce((sum, d) => sum + d.totalBruto, 0)
-            );
-
-            Plotly.newPlot("chartTotalBrutoCNAE", [{
-                x: cnaeDescricoes,
-                y: totalBrutoPorCNAE,
-                type: "bar",
-                marker: { color: "purple" }
-            }], {
-                title: "Total Bruto por Descrição CNAE",
-                xaxis: { title: "Descrição CNAE", tickangle: -45 },
-                yaxis: { title: "Total Bruto (R$)" }
-            });
-        }
-
-        createDashboard();
+      createDashboard();
     </script>
-
-</body>
-
+  </body>
 </html>
