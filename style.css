@@ -8,8 +8,8 @@ body {
 /* Define a área do gráfico */
 #grafico-container {
     width: 80%; /* O gráfico ocupa 80% da largura da tela */
-    max-width: 800px; /* Máximo de 800px de largura */
-    height: 400px; /* Altura fixa */
+    max-width: 1100px; /* Máximo de 800px de largura */
+    height: 500px; /* Altura fixa */
     margin: 20px auto; /* Centraliza na tela */
     background: white;
     padding: 15px;
@@ -17,13 +17,13 @@ body {
     box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
 }
 
-/* Ajusta o tamanho do canvas */
+
 canvas {
     width: 100% !important;
     height: 100% !important;
 }
 
-/* Botão de upload de arquivo */
+
 input[type="file"] {
     display: block;
     margin: 10px auto;
@@ -34,7 +34,7 @@ input[type="file"] {
     cursor: pointer;
 }
 
-/* Mensagem de status */
+
 #status {
     font-weight: bold;
     color: red;
